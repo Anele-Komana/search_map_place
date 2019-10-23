@@ -146,10 +146,10 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
       child: Row(
         children: <Widget>[
           GestureDetector(
-            child: Icon(this.widget.menu, color: this.widget.iconColor),
+            child: Icon(Icons.menu, color: this.widget.iconColor),
             onTap: () =>
                 widget.onMenuTab(),
-          )
+          ),
           Container(width: 10),
           Expanded(
             child: TextField(
