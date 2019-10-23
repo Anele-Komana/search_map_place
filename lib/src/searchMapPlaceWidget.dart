@@ -5,7 +5,7 @@ class SearchMapPlaceWidget extends StatefulWidget {
     @required this.apiKey,
     this.placeholder = 'Search',
     this.icon = Icons.search,
-    this.iconColor = new Color(0xFFF04F2B),
+    this.iconColor = Color(0xFFF04F2B),
     this.onMenuTab,
     this.onSelected,
     this.onSearch,
@@ -146,9 +146,8 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
       child: Row(
         children: <Widget>[
           IconButton(
-            splashColor: Colors.grey,
             icon: Icon(Icons.menu, color: this.widget.iconColor),
-            onPressed: () => widget.onMenuTab(),,
+            onPressed: () => widget.onMenuTab(),
           ),
           Container(width: 15),
           Expanded(
