@@ -145,11 +145,12 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
     return Center(
       child: Row(
         children: <Widget>[
-          IconButton(
-            icon: Icon(Icons.menu, color: this.widget.iconColor),
-            onPressed: () => widget.onMenuTab(),
-          ),
-          Container(width: 15),
+          GestureDetector(
+            child: Icon(this.widget.menu, color: this.widget.iconColor),
+            onTap: () =>
+                widget.onMenuTab(),
+          )
+          Container(width: 10),
           Expanded(
             child: TextField(
               decoration: _inputStyle(),
