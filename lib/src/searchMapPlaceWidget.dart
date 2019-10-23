@@ -5,7 +5,8 @@ class SearchMapPlaceWidget extends StatefulWidget {
     @required this.apiKey,
     this.placeholder = 'Search',
     this.icon = Icons.search,
-    this.iconColor = Colors.blue,
+    this.iconColor = new Color(0xFFF04F2B),
+    this.onMenuTab,
     this.onSelected,
     this.onSearch,
     this.language = 'en',
@@ -26,6 +27,9 @@ class SearchMapPlaceWidget extends StatefulWidget {
 
   /// The callback that is called when the user taps on the search icon.
   final void Function(Place place) onSearch;
+  
+   /// Menu icon tab
+  final void Function() onMenuTab;
 
   /// Language used for the autocompletion.
   ///
@@ -141,6 +145,12 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
     return Center(
       child: Row(
         children: <Widget>[
+          IconButton(
+            splashColor: Colors.grey,
+            icon: Icon(Icons.menu, color: this.widget.iconColor),
+            onPressed: () => widget.onMenuTab(),,
+          ),
+          Container(width: 15),
           Expanded(
             child: TextField(
               decoration: _inputStyle(),
