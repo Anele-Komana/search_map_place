@@ -116,7 +116,7 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
           return Container(
             height: _containerHeight.value,
             decoration: _containerDecoration(),
-            padding: EdgeInsets.only(left: 0, right: 0, top: 15),
+            padding: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
             alignment: Alignment.center,
             child: Column(
               children: <Widget>[
