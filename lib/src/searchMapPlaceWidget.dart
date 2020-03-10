@@ -5,7 +5,7 @@ class SearchMapPlaceWidget extends StatefulWidget {
     @required this.apiKey,
     this.placeholder = 'Search',
     this.icon = Icons.search,
-    this.iconColor = Color(0xFFF04F2B),
+    this.iconColor = const Color(0xFFF04F2B),
     this.onMenuTab,
     this.onSelected,
     this.onSearch,
@@ -74,6 +74,7 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
   List<dynamic> _placePredictions = [];
   Place _selectedPlace;
   Geocoding geocode;
+  bool showCloseWidget = false;
 
   @override
   void initState() {
@@ -102,43 +103,43 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
 
   @override
   Widget build(BuildContext context) => Container(
-        width: MediaQuery.of(context).size.width * 0.9,
-        child: _searchContainer(
-          child: _searchInput(context),
-        ),
-      );
+    width: MediaQuery.of(context).size.width * 0.9,
+    child: _searchContainer(
+      child: _searchInput(context),
+    ),
+  );
 
   // Widgets
   Widget _searchContainer({Widget child}) {
     return AnimatedBuilder(
-        animation: _animationController,
-        builder: (context, _) {
-          return Container(
-            height: _containerHeight.value,
-            decoration: _containerDecoration(),
-            padding: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
-            alignment: Alignment.center,
-            child: Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: child,
+      animation: _animationController,
+      builder: (context, _) {
+        return Container(
+          //height: _containerHeight.value,
+          decoration: _containerDecoration(),
+          padding: EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
+          alignment: Alignment.center,
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: child,
+              ),
+              //SizedBox(height: 10),
+              Opacity(
+                opacity: _listOpacity.value,
+                child: Column(
+                  children: <Widget>[
+                    if (_placePredictions.length > 0) 
+                      for (var prediction in _placePredictions)
+                        _placeOption(Place.fromJSON(prediction, geocode)),
+                  ],
                 ),
-                SizedBox(height: 10),
-                Opacity(
-                  opacity: _listOpacity.value,
-                  child: Column(
-                    children: <Widget>[
-                      if (_placePredictions.length > 0)
-                        for (var prediction in _placePredictions)
-                          _placeOption(Place.fromJSON(prediction, geocode)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        });
+              ),
+            ],
+          ),
+        );
+      });
   }
 
   Widget _searchInput(BuildContext context) {
@@ -147,8 +148,7 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
         children: <Widget>[
           GestureDetector(
             child: Icon(Icons.menu, color: this.widget.iconColor),
-            onTap: () =>
-                widget.onMenuTab(),
+            onTap: () => widget.onMenuTab(),
           ),
           Container(width: 10),
           Expanded(
@@ -157,27 +157,46 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
               controller: _textEditingController,
               style:
                   TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04),
-              onChanged: (value) => setState(() => _autocompletePlace(value)),
+              onChanged: (value) {
+                setState(() => showCloseWidget = true);
+                setState(() => _autocompletePlace(value));
+              } 
             ),
           ),
           Container(width: 15),
-          GestureDetector(
-            child: Icon(this.widget.icon, color: this.widget.iconColor),
-            onTap: () =>
-                widget.onSearch(Place.fromJSON(_selectedPlace, geocode)),
-          )
+          (showCloseWidget) 
+           ? GestureDetector(
+              child: Icon(Icons.close, color: this.widget.iconColor),
+              onTap: () => closeWidget()
+           )
+           : GestureDetector(
+              child: Icon(this.widget.icon, color: this.widget.iconColor),
+              onTap: () => widget.onSearch(Place.fromJSON(_selectedPlace, geocode)),
+            )
         ],
       ),
     );
   }
 
+  void closeWidget() async {
+    _textEditingController.value = TextEditingValue(
+        text: ""
+    );
+    await _animationController.animateTo(0.5);
+    setState(() {
+      _placePredictions = [];
+    });
+    _animationController.reverse();
+    setState(() => showCloseWidget = false);
+  }
+
   Widget _placeOption(Place prediction) {
     String place = prediction.description;
-
     return MaterialButton(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 3),
       onPressed: () => _selectPlace(prediction),
       child: ListTile(
+        leading:Icon(Icons.place),
         title: Text(
           place.length < 45
               ? "$place"
@@ -216,7 +235,6 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
   void _autocompletePlace(String input) async {
     /// Will be called everytime the input changes. Making callbacks to the Places
     /// Api and giving the user Place options
-
     if (input.length > 0) {
       String url =
           "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=${widget.apiKey}&language=${widget.language}";
